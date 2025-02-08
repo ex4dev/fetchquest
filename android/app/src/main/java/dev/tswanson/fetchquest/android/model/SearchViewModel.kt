@@ -5,21 +5,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class SearchViewModel : ViewModel() {
-    //first state whether the search is happening or not
     private val _isSearching = MutableStateFlow(false)
     val isSearching = _isSearching.asStateFlow()
 
-    //second state the text typed by the user
-    private val _searchText = MutableStateFlow("")
-    val searchText = _searchText.asStateFlow()
-    fun onSearchTextChange(text: String) {
-        _searchText.value = text
+    private val _query = MutableStateFlow("")
+    val query = _query.asStateFlow()
+
+    private val _active = MutableStateFlow(false)
+    val active = _active.asStateFlow()
+
+    fun onQueryChange(text: String) {
+        _query.value = text
+        _active.value = (text.isNotEmpty())
     }
 
-    fun onToogleSearch() {
+    fun onToggleSearch() {
         _isSearching.value = !_isSearching.value
         if (!_isSearching.value) {
-            onSearchTextChange("")
+            onQueryChange("")
         }
     }
 }

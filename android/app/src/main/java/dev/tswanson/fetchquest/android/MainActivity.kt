@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -17,10 +19,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dev.tswanson.fetchquest.android.ui.AppSearchBar
 import dev.tswanson.fetchquest.android.ui.ExplorePage
 import dev.tswanson.fetchquest.android.ui.QuestsPage
 import dev.tswanson.fetchquest.android.ui.StatsPage
@@ -34,6 +38,13 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             FetchQuestTheme {
                 Scaffold(
+                    topBar = {
+                        Row {
+                            AppSearchBar(
+                                modifier = Modifier.fillMaxWidth().padding(12.dp)
+                            )
+                        }
+                    },
                     bottomBar = {
                         BottomAppBar(actions = {
                             NavigationBarItem(
