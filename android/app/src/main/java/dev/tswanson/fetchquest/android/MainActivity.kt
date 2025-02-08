@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
@@ -15,7 +17,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import dev.tswanson.fetchquest.android.ui.ExplorePage
+import dev.tswanson.fetchquest.android.ui.QuestsPage
+import dev.tswanson.fetchquest.android.ui.StatsPage
 import dev.tswanson.fetchquest.android.ui.theme.FetchQuestTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,20 +31,35 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val navController = rememberNavController()
             FetchQuestTheme {
                 Scaffold(
                     bottomBar = {
                         BottomAppBar(actions = {
                             NavigationBarItem(
                                 selected = false,
-                                onClick = { /* TODO navigate to Explore */ },
-                                icon = { Icon(Icons.Filled.Home, contentDescription = "Home") }
+                                onClick = { navController.navigate("explore") },
+                                icon = { Icon(Icons.Filled.Place, contentDescription = "Explore") },
+                                label = { Text("Explore") }
+                            )
+                            NavigationBarItem(
+                                selected = false,
+                                onClick = { navController.navigate("quests") },
+                                icon = { Icon(Icons.Filled.Info, contentDescription = "Quests") },
+                                label = { Text("Quests") }
+                            )
+                            NavigationBarItem(
+                                selected = false,
+                                onClick = { navController.navigate("stats") },
+                                icon = { Icon(Icons.Filled.Menu, contentDescription = "Stats") },
+                                label = { Text("Stats") }
                             )
                         })
                     },
-                    modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    modifier = Modifier.fillMaxSize())
+                { innerPadding ->
+                    AppNavGraph(
+                        navController = navController,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -46,17 +69,23 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FetchQuestTheme {
-        Greeting("Android")
+fun AppNavGraph(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+) {
+    NavHost(
+        navController = navController,
+        startDestination = "explore",
+        modifier = modifier,
+    ) {
+        composable(route = "explore") {
+            ExplorePage()
+        }
+        composable(route = "quests") {
+            QuestsPage()
+        }
+        composable(route = "stats") {
+            StatsPage()
+        }
     }
 }
