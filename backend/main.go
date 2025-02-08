@@ -3,11 +3,16 @@ package main
 import (
 	"database/sql"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
+	"google.golang.org/api/idtoken"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
+// Used as a key in echo.Context to store the user ID after validating the user's JWT
+var userId string = "userId"
 
 type User struct {
 	gorm.Model
@@ -30,13 +35,9 @@ type Event struct {
 	Long        float32
 	Title       string
 	Description string
-	Points      int32
+	Hours       int
 	CreatedBy   int64
 	Creator     *User `gorm:"foreignKey:CreatedBy"`
-}
-
-type DB struct {
-	gorm.DB
 }
 
 func main() {
@@ -64,6 +65,61 @@ func main() {
 		}
 		return c.JSON(http.StatusOK, events)
 	})
+
+	e.POST("/events", func(c echo.Context) error {
+		event := Event{}
+		err := echo.QueryParamsBinder(c).
+			Float32("lat", &event.Lat).
+			Float32("long", &event.Long).
+			String("title", &event.Title).
+			String("description", &event.Description).
+			Int("hours", &event.Hours).
+			BindError()
+
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Bad request")
+		}
+
+		result := db.Create(&event)
+		if result.Error != nil {
+			return c.String(http.StatusInternalServerError, "Error")
+		}
+		return c.JSON(http.StatusOK, map[string]any{"success": true})
+	})
+
+	e.POST("/token-auth", func(c echo.Context) error {
+		var token string
+
+		payload, err := idtoken.Validate(c.Request().Context(), token, "")
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(200, payload)
+	})
+
+	authMiddleware := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			authn := c.Request().Header.Get("Authorization")
+			if authn == "" {
+				return echo.ErrUnauthorized
+			}
+
+			token := strings.TrimPrefix(authn, "Bearer ")
+
+			payload, err := idtoken.Validate(c.Request().Context(), token, "")
+
+			c.Set(userId, payload.Claims["id"])
+
+			if err != nil {
+				return echo.ErrUnauthorized
+			}
+
+			return next(c)
+		}
+	}
+
+	e.Use(authMiddleware)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
