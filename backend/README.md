@@ -2,13 +2,22 @@
 
 ## Authentication
 
-1. Make a POST request to `/login` with a JSON object in the request body. The object should contain one field, `token`, which is the user's [ID Token](https://developers.google.com/identity/sign-in/android/backend-auth#send-the-id-token-to-your-server).
-   The server will return the decoded content of the JWT. You can also do this on the client; it really doesn't matter. The token is verified with every API request.
+When making any authenticated requests, provide the token in the Authorization header:
 
-2. When making any subsequent requests, provide the token in the Authorization header:
-   ```
-   Authorization: Bearer <google-token-here>
-   ```
+```
+Authorization: Bearer <google-token-here>
+```
+
+To fetch the user's information, make a POST request to `/me`. This will return a JSON object that looks something like this:
+
+```json
+{
+  "name": "Brendan Swanson",
+  "googleUserId": "1209381209381209311",
+  "email": "abc.xyz@gmail.com",
+  "picture": "https://lh3.google.com/..."
+}
+```
 
 ## Events
 
@@ -35,7 +44,8 @@ Creates a new event. Accepts an `Event` JSON object in the request body.
 
 ### `User` spec
 
-| Field | Data type |
-| ----- | --------- |
-| name  | string    |
-| email | string    |
+| Field   | Data type |
+| ------- | --------- |
+| name    | string    |
+| email   | string    |
+| picture | string    |

@@ -9,16 +9,19 @@ import (
 	"google.golang.org/api/idtoken"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Used as a key in echo.Context to store the user ID after validating the user's JWT
-var userId string = "userId"
+var jwt string = "googleJWT"
 
 type User struct {
 	gorm.Model
-	Name   string
-	Email  string
-	Events []*UserEvent
+	Name         string
+	Email        string
+	Picture      string
+	GoogleUserId string
+	Events       []*UserEvent
 }
 
 type UserEvent struct {
@@ -36,7 +39,7 @@ type Event struct {
 	Title       string
 	Description string
 	Hours       int
-	CreatedBy   int64
+	CreatedBy   uint
 	Creator     *User `gorm:"foreignKey:CreatedBy"`
 }
 
@@ -68,7 +71,15 @@ func main() {
 
 	e.POST("/events", func(c echo.Context) error {
 		event := Event{}
-		err := echo.QueryParamsBinder(c).
+
+		user, err := getUser(db, c)
+		if err != nil {
+			return err
+		}
+
+		event.CreatedBy = user.ID
+
+		err = echo.QueryParamsBinder(c).
 			Float32("lat", &event.Lat).
 			Float32("long", &event.Long).
 			String("title", &event.Title).
@@ -87,15 +98,12 @@ func main() {
 		return c.JSON(http.StatusOK, map[string]any{"success": true})
 	})
 
-	e.POST("/token-auth", func(c echo.Context) error {
-		var token string
-
-		payload, err := idtoken.Validate(c.Request().Context(), token, "")
+	e.POST("/me", func(c echo.Context) error {
+		user, err := getUser(db, c)
 		if err != nil {
 			return err
 		}
-
-		return c.JSON(200, payload)
+		return c.JSON(200, user)
 	})
 
 	authMiddleware := func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -109,7 +117,7 @@ func main() {
 
 			payload, err := idtoken.Validate(c.Request().Context(), token, "")
 
-			c.Set(userId, payload.Claims["id"])
+			c.Set(jwt, payload)
 
 			if err != nil {
 				return echo.ErrUnauthorized
@@ -122,4 +130,30 @@ func main() {
 	e.Use(authMiddleware)
 
 	e.Logger.Fatal(e.Start(":8080"))
+}
+
+func getUser(db *gorm.DB, c echo.Context) (*User, error) {
+	jwt := c.Get(jwt).(*idtoken.Payload)
+	uid := jwt.Claims["sub"].(string)
+
+	user := &User{}
+	result := db.First(user, "google_user_id = ?", uid)
+
+	if result.Error == gorm.ErrRecordNotFound {
+		// The user doesn't exist. Create a new one
+		user.Name = jwt.Claims["name"].(string)
+		user.Email = jwt.Claims["email"].(string)
+		user.Picture = jwt.Claims["picture"].(string)
+		user.GoogleUserId = uid
+
+		result := db.Model(&User{}).Clauses(clause.Returning{}).Create(user)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+		return user, nil
+	} else if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return user, nil
 }
