@@ -3,7 +3,9 @@ package main
 import (
 	"database/sql"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"google.golang.org/api/idtoken"
@@ -21,13 +23,13 @@ type User struct {
 	Email        string
 	Picture      string
 	GoogleUserId string
-	Events       []*UserEvent
+	Events       []*Registration
 }
 
-type UserEvent struct {
-	UserId      int64
-	User        *User `gorm:"foreignKey:UserId"`
-	EventId     int64
+type Registration struct {
+	UserId      uint   `gorm:"uniqueIndex:user_event"`
+	User        *User  `gorm:"foreignKey:UserId"`
+	EventId     uint   `gorm:"uniqueIndex:user_event"`
 	Event       *Event `gorm:"foreignKey:EventId"`
 	CompletedAt sql.NullTime
 }
@@ -38,6 +40,7 @@ type Event struct {
 	Long        float32
 	Title       string
 	Description string
+	Date        time.Time
 	Hours       int
 	CreatedBy   uint
 	Creator     *User `gorm:"foreignKey:CreatedBy"`
@@ -69,6 +72,44 @@ func main() {
 		return c.JSON(http.StatusOK, events)
 	})
 
+	e.POST("/events/:event/join", func(c echo.Context) error {
+		user, err := getUser(db, c)
+		if err != nil {
+			return err
+		}
+
+		eventID, err := strconv.ParseInt(c.Param("event"), 10, 64)
+		if err != nil {
+			return echo.ErrBadRequest
+		}
+
+		reg := Registration{UserId: user.ID, EventId: uint(eventID)}
+
+		result := db.Create(&reg)
+		if result.Error != nil {
+			return c.String(http.StatusInternalServerError, "Error")
+		}
+
+		return c.JSON(http.StatusOK, reg)
+	})
+
+	e.POST("/events/:event/leave", func(c echo.Context) error {
+		eventID, err := strconv.ParseInt(c.Param("event"), 10, 64)
+		if err != nil {
+			return echo.ErrBadRequest
+		}
+		uid, err := getUser(db, c)
+		if err != nil {
+			return err
+		}
+		result := db.Delete(&Registration{}, "user_id = ? AND event_id = ?", uid, eventID)
+		if result.RowsAffected > 0 {
+			return c.JSON(200, map[string]any{"success": true})
+		} else {
+			return c.JSON(404, map[string]any{"success": false})
+		}
+	})
+
 	e.POST("/events", func(c echo.Context) error {
 		event := Event{}
 
@@ -91,14 +132,14 @@ func main() {
 			return c.String(http.StatusBadRequest, "Bad request")
 		}
 
-		result := db.Create(&event)
+		result := db.Model(Event{}).Clauses(clause.Returning{}).Create(&event)
 		if result.Error != nil {
 			return c.String(http.StatusInternalServerError, "Error")
 		}
-		return c.JSON(http.StatusOK, map[string]any{"success": true})
+		return c.JSON(http.StatusOK, result)
 	})
 
-	e.POST("/me", func(c echo.Context) error {
+	e.GET("/me", func(c echo.Context) error {
 		user, err := getUser(db, c)
 		if err != nil {
 			return err

@@ -8,7 +8,7 @@ When making any authenticated requests, provide the token in the Authorization h
 Authorization: Bearer <google-token-here>
 ```
 
-To fetch the user's information, make a POST request to `/me`. This will return a JSON object that looks something like this:
+To fetch the user's information, make a GET request to `/me`. This will return a JSON object that looks something like this:
 
 ```json
 {
@@ -39,6 +39,14 @@ Lists all events. Returns a JSON array of `Event` objects.
 ### POST `/events`
 
 Creates a new event. Accepts an `Event` JSON object in the request body.
+
+### POST `/events/:event/join`
+
+Registers the user for the event. `:event` is the numerical ID of the event. Calling this when the user is already registered will cause a 500 error.
+
+### POST `/events/:event/leave`
+
+Unregisters the user for the event. `:event` is the numerical ID of the event.
 
 ## Users
 
