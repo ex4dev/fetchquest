@@ -112,7 +112,7 @@ fun VerticalScrollingList(items: List<Quest>, title: String) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Hours : "+item.reward,
+                        text = "Hours : "+item.hours,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
