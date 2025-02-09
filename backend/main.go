@@ -96,7 +96,7 @@ func main() {
 		}
 
 		registrations := []Registration{}
-		result := db.Preload("User").Find(&registrations, "event_id = ?", eventID)
+		result := db.Preload("User").Find(&registrations, "event_id = ? AND deleted_at IS NOT NULL", eventID)
 		if result.Error != nil {
 			return c.String(http.StatusInternalServerError, "Error")
 		}
@@ -235,27 +235,27 @@ func main() {
 		}
 
 		var allTime, pastYear, pastMonth, pastWeek int
-		result := db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completed_at IS NOT NULL").Select("sum(hours)").Scan(&allTime)
+		result := db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND deleted_at IS NOT NULL AND completed_at IS NOT NULL").Select("sum(hours)").Scan(&allTime)
 		if result.Error != nil {
 			return result.Error
 		}
 
-		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completed_at IS NOT NULL AND completed_at > date('now', '-1 year'))").Select("sum(hours)").Scan(&pastYear)
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND deleted_at IS NOT NULL AND completed_at IS NOT NULL AND completed_at > date('now', '-1 year'))").Select("sum(hours)").Scan(&pastYear)
 		if result.Error != nil {
 			return result.Error
 		}
 
-		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completed_at IS NOT NULL AND completed_at > date('now', '-30 days'))").Select("sum(hours)").Scan(&pastMonth)
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND deleted_at IS NOT NULL AND completed_at IS NOT NULL AND completed_at > date('now', '-30 days'))").Select("sum(hours)").Scan(&pastMonth)
 		if result.Error != nil {
 			return result.Error
 		}
 
-		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completed_at IS NOT NULL AND completed_at > date('now', '-7 days'))").Select("sum(hours)").Scan(&pastWeek)
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND deleted_at IS NOT NULL AND completed_at IS NOT NULL AND completed_at > date('now', '-7 days'))").Select("sum(hours)").Scan(&pastWeek)
 		if result.Error != nil {
 			return result.Error
 		}
 
-		rows, err := db.Raw("SELECT completed_at FROM registrations WHERE userId = ? AND completed_at IS NOT NULL ORDER BY completed_at DESC", user.ID).Rows()
+		rows, err := db.Raw("SELECT completed_at FROM registrations WHERE userId = ? AND deleted_at IS NOT NULL AND completed_at IS NOT NULL ORDER BY completed_at DESC", user.ID).Rows()
 		if err != nil {
 			return err
 		}
