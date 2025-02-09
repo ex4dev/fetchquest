@@ -124,7 +124,7 @@ func main() {
 		if err != nil {
 			return err
 		}
-		result := db.Delete(&Registration{}, "user_id = ? AND event_id = ?", uid, eventID)
+		result := db.Unscoped().Delete(&Registration{}, "user_id = ? AND event_id = ?", uid, eventID)
 		if result.RowsAffected > 0 {
 			return c.JSON(200, map[string]any{"success": true})
 		} else {
