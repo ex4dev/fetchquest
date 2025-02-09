@@ -17,6 +17,8 @@ class APIConnection(private val token: String) {
         private const val BASE_URL =
             "http://10.0.2.2:8080"
         lateinit var instance: APIConnection
+
+        fun isInitialized() = ::instance.isInitialized
     }
 
     private val httpClient = OkHttpClient.Builder()

@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.tswanson.fetchquest.android.APIConnection
+import dev.tswanson.fetchquest.android.MapPointInfoWindow
 import dev.tswanson.fetchquest.android.model.QuestListViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -22,9 +24,13 @@ fun ExplorePage() {
     val viewModel = viewModel { QuestListViewModel() }
     val quests = viewModel.quests
 
+    if (!APIConnection.isInitialized()) {
+        return
+        // TODO redirect to the sign-in page or show a dialog or something
+    }
     LaunchedEffect(Unit) { viewModel.fetchQuests() }
 
-    var geoPoint = remember { mutableStateOf(GeoPoint(35.7841832,-78.6648615)) }
+    var geoPoint = remember { mutableStateOf(GeoPoint(35.7841832, -78.6648615)) }
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -40,6 +46,7 @@ fun ExplorePage() {
             }
         },
         update = { view ->
+            Configuration.getInstance().userAgentValue = context.packageName
             view.controller.setCenter(geoPoint.value)
             view.controller.setZoom(16.0)
 
@@ -47,6 +54,7 @@ fun ExplorePage() {
             for (quest in quests) {
                 val marker = Marker(view)
                 marker.position = GeoPoint(quest.lat.toDouble(), quest.long.toDouble())
+                marker.infoWindow = MapPointInfoWindow(view, quest)
                 view.overlays.add(marker)
             }
         }
