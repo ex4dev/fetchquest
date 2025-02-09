@@ -96,10 +96,11 @@ class MainActivity : ComponentActivity() {
                                         icon = {
                                             Icon(
                                                 Icons.Filled.Place,
-                                                contentDescription = "Explore"
+                                                contentDescription = "Explore",
+                                                tint = Color.White
                                             )
                                         },
-                                        label = { Text("Explore") }
+                                        label = { Text("Explore", color = Color.White) }
                                     )
                                     NavigationBarItem(
                                         selected = false,
@@ -107,10 +108,11 @@ class MainActivity : ComponentActivity() {
                                         icon = {
                                             Icon(
                                                 Icons.Filled.Info,
-                                                contentDescription = "Quests"
+                                                contentDescription = "Quests",
+                                                tint = Color.White
                                             )
                                         },
-                                        label = { Text("Quests") }
+                                        label = { Text("Quests", color = Color.White) }
                                     )
                                     NavigationBarItem(
                                         selected = false,
@@ -118,10 +120,11 @@ class MainActivity : ComponentActivity() {
                                         icon = {
                                             Icon(
                                                 Icons.Filled.Menu,
-                                                contentDescription = "Stats"
+                                                contentDescription = "Stats",
+                                                tint = Color.White
                                             )
                                         },
-                                        label = { Text("Stats") }
+                                        label = { Text("Stats", color = Color.White) }
                                     )
                                 })
                         }
