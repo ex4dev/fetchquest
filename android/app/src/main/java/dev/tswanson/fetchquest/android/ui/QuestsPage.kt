@@ -15,26 +15,25 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-val q1: Quest = Quest("Help at the Food Bank", "Assist in sorting and distributing food.", "50",2,1,"")
-val q2: Quest = Quest("Tutor a Student", "Provide online tutoring for a student in need.", "100",4,5,"")
-val q3: Quest = Quest("Elderly Assistance", "Help an elderly person with daily tasks.", "75",7,1,"")
-val q4: Quest = Quest("Help at the Museum", "Assist in sorting and distributing food.", "50",2,1,"")
-val q5: Quest = Quest("Tutor a Elder", "Provide online tutoring for a student in need.", "100",4,5,"")
-val q6: Quest = Quest("Math Assistance", "Help an elderly person with daily tasks.", "75",7,1,"")
-private val itemList : MutableList<Quest> =
-    mutableStateListOf<Quest>(q1,q2,q3)
-private val myQuest : MutableList<Quest> = mutableStateListOf(q1,q2,q3,q4,q5,q6)
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.tswanson.fetchquest.android.Event
+import dev.tswanson.fetchquest.android.model.QuestListViewModel
 
 @Composable
 fun QuestsPage() {
+    val viewModel = viewModel { QuestListViewModel() }
+    val allQuestList = viewModel.quests
+    val myQuestList = viewModel.myQuests
+
+    LaunchedEffect(Unit) { viewModel.fetchQuests() }
+
     Column (
         modifier = Modifier
             .padding(16.dp)
@@ -51,7 +50,7 @@ fun QuestsPage() {
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
-        VerticalScrollingList(itemList, "My Quests", false)
+        VerticalScrollingList(viewModel, myQuestList, "My Quests", false)
         Text(
             text = "All Quests",
             style = MaterialTheme.typography.headlineMedium.copy(
@@ -63,21 +62,12 @@ fun QuestsPage() {
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
-        VerticalScrollingList(myQuest, "All Quests", true)
+        VerticalScrollingList(viewModel, allQuestList, "All Quests", true)
     }
-
-}
-
-fun onAddQuestClick(item: Quest) {
-    itemList.add(item)
-}
-
-fun onRemoveQuestClick(item: Quest) {
-    itemList.remove(item)
 }
 
 @Composable
-fun VerticalScrollingList(items: List<Quest>, title: String, boo: Boolean) {
+fun VerticalScrollingList(viewModel: QuestListViewModel, items: List<Event>, title: String, boo: Boolean) {
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -101,7 +91,7 @@ fun VerticalScrollingList(items: List<Quest>, title: String, boo: Boolean) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = item.name,
+                        text = item.title,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -134,7 +124,7 @@ fun VerticalScrollingList(items: List<Quest>, title: String, boo: Boolean) {
                     )
                     if (boo) {
                         Button(
-                            onClick = { onAddQuestClick(item) },
+                            onClick = { viewModel.addMyQuest(item) },
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary
@@ -149,9 +139,8 @@ fun VerticalScrollingList(items: List<Quest>, title: String, boo: Boolean) {
 
                     }
                     if (!boo) {
-
                         Button(
-                            onClick = { onRemoveQuestClick(item) },
+                            onClick = { viewModel.removeMyQuest(item) },
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary

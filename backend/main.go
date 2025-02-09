@@ -87,7 +87,7 @@ func main() {
 			return err
 		}
 		events := make([]Event, 0)
-		result := db.Find(&events, "id IN (SELECT * FROM registrations WHERE deleted_at IS NULL AND user_id = ?)", user.ID)
+		result := db.Find(&events, "id IN (SELECT id FROM registrations WHERE deleted_at IS NULL AND user_id = ?)", user.ID)
 		if result.Error != nil {
 			return c.String(http.StatusInternalServerError, "Error")
 		}
@@ -120,11 +120,13 @@ func main() {
 		if err != nil {
 			return echo.ErrBadRequest
 		}
-		uid, err := getUser(db, c)
+		user, err := getUser(db, c)
 		if err != nil {
 			return err
 		}
-		result := db.Unscoped().Delete(&Registration{}, "user_id = ? AND event_id = ?", uid, eventID)
+
+		result := db.Unscoped().Delete(&Registration{}, "user_id = ? AND event_id = ?", user.ID, eventID)
+
 		if result.RowsAffected > 0 {
 			return c.JSON(200, map[string]any{"success": true})
 		} else {

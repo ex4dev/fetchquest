@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 class APIConnection(private val token: String) {
     companion object {
@@ -44,23 +45,39 @@ class APIConnection(private val token: String) {
         suspend fun getEvents(): List<Event>
         @POST("/events")
         suspend fun postEvents(event: Event): Unit
+        @GET("/my-events")
+        suspend fun getMyEvents(): List<Event>
+        @POST("/events/{id}/join")
+        suspend fun joinEvent(@Path("id") id: Int)
+        @POST("/events/{id}/leave")
+        suspend fun leaveEvent(@Path("id") id: Int)
     }
 }
 
 @Serializable
 data class User(
+    val id: Int,
     val name: String,
     val googleUserId: String,
     val email: String,
     val picture: String,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String?,
 )
 
 @Serializable
 data class Event(
+    val id: Int,
     val lat: Float,
     val long: Float,
     val title: String,
     val description: String,
-    val hours: String,
-    val createdBy: Long
+    val date: String,
+    val hours: Int,
+    val creatorId: Long,
+    val createdBy: User?,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String?,
 )
