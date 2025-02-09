@@ -17,8 +17,16 @@ import (
 // Used as a key in echo.Context to store the user ID after validating the user's JWT
 var jwt string = "googleJWT"
 
+type Model struct {
+	// The same as gorm's `gorm.Model` struct, but with camelCase JSON serialized names
+	ID        uint           `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
+}
+
 type User struct {
-	gorm.Model
+	Model
 	Name         string          `json:"name"`
 	Email        string          `json:"email"`
 	Picture      string          `json:"picture"`
@@ -27,6 +35,7 @@ type User struct {
 }
 
 type Registration struct {
+	Model
 	UserId      uint         `gorm:"uniqueIndex:user_event" json:"userId"`
 	User        *User        `gorm:"foreignKey:UserId" json:"user"`
 	EventId     uint         `gorm:"uniqueIndex:user_event" json:"eventId"`
@@ -35,7 +44,7 @@ type Registration struct {
 }
 
 type Event struct {
-	gorm.Model
+	Model
 	Lat         float32   `json:"lat"`
 	Long        float32   `json:"long"`
 	Title       string    `json:"title"`
