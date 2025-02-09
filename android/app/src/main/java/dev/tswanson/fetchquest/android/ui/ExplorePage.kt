@@ -9,8 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import dev.tswanson.fetchquest.android.APIConnection
 import dev.tswanson.fetchquest.android.MapPointInfoWindow
+import dev.tswanson.fetchquest.android.model.QuestInfoViewModel
 import dev.tswanson.fetchquest.android.model.QuestListViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -19,7 +21,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
 @Composable
-fun ExplorePage() {
+fun ExplorePage(questInfoViewModel: QuestInfoViewModel, navController: NavHostController) {
 
     val viewModel = viewModel { QuestListViewModel() }
     val quests = viewModel.quests
@@ -54,7 +56,11 @@ fun ExplorePage() {
             for (quest in quests) {
                 val marker = Marker(view)
                 marker.position = GeoPoint(quest.lat.toDouble(), quest.long.toDouble())
-                marker.infoWindow = MapPointInfoWindow(view, quest)
+                marker.infoWindow = MapPointInfoWindow(view, quest) {
+                    navController.navigate("quests")
+                    questInfoViewModel.setCurrentEvent(quest)
+                    questInfoViewModel.setVisible(true)
+                }
                 view.overlays.add(marker)
             }
         }

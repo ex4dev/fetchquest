@@ -204,7 +204,7 @@ fun AppNavGraph(
         modifier = modifier,
     ) {
         composable(route = "explore") {
-            ExplorePage()
+            ExplorePage(questInfoViewModel, navController)
         }
         composable(route = "quests") {
             QuestsPage(questInfoViewModel = questInfoViewModel)

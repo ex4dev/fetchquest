@@ -1,6 +1,5 @@
 package dev.tswanson.fetchquest.android.model
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.tswanson.fetchquest.android.APIConnection
