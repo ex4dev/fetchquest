@@ -51,6 +51,11 @@ class APIConnection(private val token: String) {
         suspend fun joinEvent(@Path("id") id: Int)
         @POST("/events/{id}/leave")
         suspend fun leaveEvent(@Path("id") id: Int)
+        @POST("/events/{id}/attendees")
+        suspend fun getAttendees(@Path("id") id: Int): List<Registration>
+        @POST("events/{id}/sign-off")
+        // Takes html form data in the body
+        suspend fun signOffEvent(id: Int)
     }
 }
 
@@ -77,6 +82,19 @@ data class Event(
     val hours: Int,
     val creatorId: Long,
     val createdBy: User?,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String?,
+)
+
+@Serializable
+data class Registration(
+    val id: Int,
+    val userId: Int,
+    val user: User,
+    val eventId: Int,
+    val event: Event?,
+    val completedAt: String?,
     val createdAt: String,
     val updatedAt: String,
     val deletedAt: String?,
