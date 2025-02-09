@@ -4,6 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.http.GET
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -51,7 +52,7 @@ class APIConnection(private val token: String) {
         suspend fun joinEvent(@Path("id") id: Int)
         @POST("/events/{id}/leave")
         suspend fun leaveEvent(@Path("id") id: Int)
-        @POST("/events/{id}/attendees")
+        @GET("/events/{id}/attendees")
         suspend fun getAttendees(@Path("id") id: Int): List<Registration>
         @POST("events/{id}/sign-off")
         // Takes html form data in the body
@@ -69,6 +70,7 @@ data class User(
     val createdAt: String,
     val updatedAt: String,
     val deletedAt: String?,
+    val registeredEvents: Unit?
 )
 
 @Serializable
@@ -94,7 +96,7 @@ data class Registration(
     val user: User,
     val eventId: Int,
     val event: Event?,
-    val completedAt: String?,
+    val completedAt: JsonObject?,
     val createdAt: String,
     val updatedAt: String,
     val deletedAt: String?,

@@ -96,7 +96,7 @@ func main() {
 		}
 
 		registrations := []Registration{}
-		result := db.Preload("User").Find(&registrations, "eventId = ?", eventID)
+		result := db.Preload("User").Find(&registrations, "event_id = ?", eventID)
 		if result.Error != nil {
 			return c.String(http.StatusInternalServerError, "Error")
 		}
