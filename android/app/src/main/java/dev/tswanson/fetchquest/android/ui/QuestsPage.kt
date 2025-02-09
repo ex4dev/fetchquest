@@ -1,13 +1,14 @@
 package dev.tswanson.fetchquest.android.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -34,55 +35,47 @@ fun QuestsPage() {
 
     LaunchedEffect(Unit) { viewModel.fetchQuests() }
 
-    Column (
+    Column(
         modifier = Modifier
             .padding(16.dp)
-            .verticalScroll(rememberScrollState())
     ) {
-        Text(
-            text = "My Quests",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-        )
-        VerticalScrollingList(viewModel, myQuestList, "My Quests", false)
-        Text(
-            text = "All Quests",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-        )
-        VerticalScrollingList(viewModel, allQuestList, "All Quests", true)
+        VerticalScrollingList(viewModel, myQuestList, "My Quests")
+        VerticalScrollingList(viewModel, allQuestList, "All Quests")
     }
 }
 
 @Composable
-fun VerticalScrollingList(viewModel: QuestListViewModel, items: List<Event>, title: String, boo: Boolean) {
-    Column(
+fun VerticalScrollingList(
+    viewModel: QuestListViewModel,
+    list: List<Event>,
+    title: String,
+) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
             .padding(16.dp)
-            //.verticalScroll(rememberScrollState())
     ) {
-        items.forEachIndexed { index, item ->
+        item {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                ),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            )
+        }
+        items(list) { item ->
             ElevatedCard(
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = if (index < items.size - 1) 12.dp else 0.dp) // Adds spacing between cards
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
@@ -98,9 +91,7 @@ fun VerticalScrollingList(viewModel: QuestListViewModel, items: List<Event>, tit
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.primary
                     )
-
                     Spacer(modifier = Modifier.height(8.dp)) // Space between title and description
-
                     Text(
                         text = item.description,
                         style = MaterialTheme.typography.bodyMedium.copy(
@@ -113,7 +104,7 @@ fun VerticalScrollingList(viewModel: QuestListViewModel, items: List<Event>, tit
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Hours : "+item.hours,
+                        text = "${item.hours} hours",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
@@ -122,40 +113,20 @@ fun VerticalScrollingList(viewModel: QuestListViewModel, items: List<Event>, tit
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    if (boo) {
-                        Button(
-                            onClick = { viewModel.addMyQuest(item) },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "Add Quest",
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-
+                    val itemAdded = viewModel.myQuests.contains(item)
+                    Button(
+                        onClick = { if (itemAdded) viewModel.removeMyQuest(item) else viewModel.addMyQuest(item) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = if (itemAdded) "Remove Quest" else "Add Quest",
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
-                    if (!boo) {
-                        Button(
-                            onClick = { viewModel.removeMyQuest(item) },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "Remove Quest",
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-
-
-                    }
-
                 }
             }
         }
