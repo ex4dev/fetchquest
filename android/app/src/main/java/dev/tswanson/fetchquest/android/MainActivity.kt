@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,7 +26,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -37,8 +41,6 @@ import dev.tswanson.fetchquest.android.ui.ExplorePage
 import dev.tswanson.fetchquest.android.ui.QuestsPage
 import dev.tswanson.fetchquest.android.ui.StatsPage
 import dev.tswanson.fetchquest.android.ui.theme.FetchQuestTheme
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 
 
 class MainActivity : ComponentActivity() {
@@ -51,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         Box(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth().clipToBounds()
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.wood),
@@ -59,7 +61,9 @@ class MainActivity : ComponentActivity() {
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .scale(6f)
-                                    .height(40.dp)
+                                    .height(64.dp)
+                                    .fillMaxWidth()
+                                    .clipToBounds()
                             )
                             Row {
                                 AppSearchBar(
@@ -70,7 +74,7 @@ class MainActivity : ComponentActivity() {
                     },
                     bottomBar = {
                         Box(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth().clipToBounds()
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.wood),
@@ -124,6 +128,15 @@ class MainActivity : ComponentActivity() {
                     },
                     modifier = Modifier.fillMaxSize().background(Color.Transparent))
                 { innerPadding ->
+                    Image(
+                        painter = painterResource(id = R.drawable.scroll),
+                        contentDescription = "Scroll",
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .scale(2.1f)
+                    )
                     AppNavGraph(
                         navController = navController,
                         modifier = Modifier.padding(innerPadding)

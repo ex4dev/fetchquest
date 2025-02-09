@@ -1,9 +1,7 @@
 package dev.tswanson.fetchquest.android.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,13 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.tswanson.fetchquest.android.R
 
 val q1: Quest = Quest("Help at the Food Bank", "Assist in sorting and distributing food.", "50",2,1,"")
 val q2: Quest = Quest("Tutor a Student", "Provide online tutoring for a student in need.", "100",4,5,"")
@@ -40,15 +35,6 @@ private val myQuest : MutableList<Quest> = mutableStateListOf(q1,q2,q3,q4,q5,q6)
 
 @Composable
 fun QuestsPage() {
-    Image(
-        painter = painterResource(id = R.drawable.scroll),
-        contentDescription = "My Image",
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .scale(2f)
-
-    )
     Column (
         modifier = Modifier
             .padding(16.dp)
