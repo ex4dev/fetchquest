@@ -17,8 +17,8 @@ import (
 // Used as a key in echo.Context to store the user ID after validating the user's JWT
 var jwt string = "googleJWT"
 
+// The same as gorm's `gorm.Model` struct, but with camelCase JSON serialized names
 type Model struct {
-	// The same as gorm's `gorm.Model` struct, but with camelCase JSON serialized names
 	ID        uint           `gorm:"primarykey" json:"id"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
@@ -53,6 +53,14 @@ type Event struct {
 	Hours       int       `json:"hours"`
 	CreatedBy   uint      `json:"creatorId"`
 	Creator     *User     `gorm:"foreignKey:CreatedBy" json:"createdBy"`
+}
+
+type Metrics struct {
+	CurrentStreak  int `json:"currentStreak"`
+	HoursPastWeek  int `json:"hoursPastWeek"`
+	HoursPastMonth int `json:"hoursPastMonth"`
+	HoursPastYear  int `json:"hoursPastYear"`
+	HoursAllTime   int `json:"hoursAllTime"`
 }
 
 func main() {
@@ -220,6 +228,65 @@ func main() {
 		return c.JSON(200, user)
 	})
 
+	e.GET("/stats", func(c echo.Context) error {
+		user, err := getUser(db, c)
+		if err != nil {
+			return err
+		}
+
+		var allTime, pastYear, pastMonth, pastWeek int
+		result := db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completedAt IS NOT NULL").Select("sum(hours)").Scan(&allTime)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completedAt IS NOT NULL AND completedAt > date('now', '-1 year'))").Select("sum(hours)").Scan(&pastYear)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completedAt IS NOT NULL AND completedAt > date('now', '-30 days'))").Select("sum(hours)").Scan(&pastMonth)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completedAt IS NOT NULL AND completedAt > date('now', '-7 days'))").Select("sum(hours)").Scan(&pastWeek)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		rows, err := db.Raw("SELECT completedAt FROM registrations WHERE userId = ? AND completedAt IS NOT NULL ORDER BY completedAt DESC", user.ID).Rows()
+		if err != nil {
+			return err
+		}
+
+		defer rows.Close()
+		var lastDate *time.Time
+		streak := 0
+		for rows.Next() {
+			var currentDate time.Time
+			rows.Scan(&currentDate)
+			if lastDate != nil {
+				if truncateToDay(*lastDate).Sub(truncateToDay(currentDate)).Hours() > 24 {
+					break
+				}
+				streak++
+			}
+			lastDate = &currentDate
+		}
+		if result.Error != nil {
+			return result.Error
+		}
+
+		return c.JSON(200, Metrics{
+			CurrentStreak:  streak,
+			HoursPastWeek:  pastWeek,
+			HoursPastMonth: pastMonth,
+			HoursPastYear:  pastYear,
+			HoursAllTime:   allTime,
+		})
+	})
+
 	authMiddleware := func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			authn := c.Request().Header.Get("Authorization")
@@ -244,6 +311,10 @@ func main() {
 	e.Use(authMiddleware)
 
 	e.Logger.Fatal(e.Start(":8080"))
+}
+
+func truncateToDay(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 }
 
 func getUser(db *gorm.DB, c echo.Context) (*User, error) {
