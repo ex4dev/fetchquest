@@ -19,31 +19,31 @@ var jwt string = "googleJWT"
 
 type User struct {
 	gorm.Model
-	Name         string
-	Email        string
-	Picture      string
-	GoogleUserId string
-	Events       []*Registration
+	Name         string          `json:"name"`
+	Email        string          `json:"email"`
+	Picture      string          `json:"picture"`
+	GoogleUserId string          `json:"googleUserId"`
+	Events       []*Registration `json:"registeredEvents"`
 }
 
 type Registration struct {
-	UserId      uint   `gorm:"uniqueIndex:user_event"`
-	User        *User  `gorm:"foreignKey:UserId"`
-	EventId     uint   `gorm:"uniqueIndex:user_event"`
-	Event       *Event `gorm:"foreignKey:EventId"`
-	CompletedAt sql.NullTime
+	UserId      uint         `gorm:"uniqueIndex:user_event" ,json:"userId"`
+	User        *User        `gorm:"foreignKey:UserId" ,json:"user"`
+	EventId     uint         `gorm:"uniqueIndex:user_event" ,json:"eventId"`
+	Event       *Event       `gorm:"foreignKey:EventId" ,json:"event"`
+	CompletedAt sql.NullTime `json:"completedAt"`
 }
 
 type Event struct {
 	gorm.Model
-	Lat         float32
-	Long        float32
-	Title       string
-	Description string
-	Date        time.Time
-	Hours       int
-	CreatedBy   uint
-	Creator     *User `gorm:"foreignKey:CreatedBy"`
+	Lat         float32   `json:"lat"`
+	Long        float32   `json:"long"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Date        time.Time `json:"date"`
+	Hours       int       `json:"hours"`
+	CreatedBy   uint      `json:"creatorId"`
+	Creator     *User     `gorm:"foreignKey:CreatedBy" ,json:"createdBy"`
 }
 
 func main() {
