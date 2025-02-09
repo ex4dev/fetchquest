@@ -134,6 +134,33 @@ func main() {
 		}
 	})
 
+	e.POST("/events/:event/sign-off", func(c echo.Context) error {
+		eventID, err := strconv.ParseInt(c.Param("event"), 10, 64)
+		if err != nil {
+			return echo.ErrBadRequest
+		}
+		user, err := getUser(db, c)
+		if err != nil {
+			return err
+		}
+
+		var attendeeID uint
+		var signedOff bool
+
+		err = echo.FormFieldBinder(c).Uint("attendee", &attendeeID).Bool("signedOff", &signedOff).BindError()
+		if err != nil {
+			return err
+		}
+
+		result := db.Model(&Registration{}).Where("user_id = ? AND event_id = ? AND (SELECT creatorId FROM events WHERE id = ?) = ?", attendeeID, eventID, eventID, user.ID).Update("completed", signedOff)
+
+		if result.RowsAffected > 0 {
+			return c.JSON(200, map[string]any{"success": true})
+		} else {
+			return c.JSON(404, map[string]any{"success": false})
+		}
+	})
+
 	e.POST("/events", func(c echo.Context) error {
 		event := Event{}
 
@@ -144,7 +171,7 @@ func main() {
 
 		event.CreatedBy = user.ID
 
-		err = echo.QueryParamsBinder(c).
+		err = echo.FormFieldBinder(c).
 			Float32("lat", &event.Lat).
 			Float32("long", &event.Long).
 			String("title", &event.Title).
