@@ -12,8 +12,12 @@ class MapPointInfoWindow(mapView: MapView, private val quest: Event) :
     override fun onOpen(item: Any?) {
         closeAllInfoWindowsOn(mapView)
 
-        val text = mView.findViewById<TextView>(R.id.text_view)
-        text.text = quest.title
+        val title = mView.findViewById<TextView>(R.id.text_view)
+        title.text = quest.title
+
+        val desc = mView.findViewById<TextView>(R.id.text_description)
+        desc.text = quest.description
+
         val button = mView.findViewById<Button>(R.id.view_button)
         button.setOnClickListener {
             // TODO: navigate to the details page for the event
