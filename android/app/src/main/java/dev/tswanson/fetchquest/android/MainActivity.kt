@@ -168,7 +168,7 @@ fun AppNavGraph(
             QuestsPage()
         }
         composable(route = "stats") {
-            StatsPage(1, 2, 3,4, 5, 6)
+            StatsPage(1, 2, 3,4, 6)
         }
         composable(route = "sign-in") {
             SignInPage()

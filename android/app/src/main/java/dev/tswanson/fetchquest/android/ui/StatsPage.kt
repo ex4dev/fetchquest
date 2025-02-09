@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun StatsPage(pastWeek: Int, pastMonth: Int, pastYear: Int,
-              currentHours: Int, allTime: Int, streak: Int) {
+              allTime: Int, streak: Int) {
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -31,7 +31,6 @@ fun StatsPage(pastWeek: Int, pastMonth: Int, pastYear: Int,
         StatItem("Hours in the past week", pastWeek)
         StatItem("Hours in the past month", pastMonth)
         StatItem("Hours in the past year", pastYear)
-        StatItem("Current hours", currentHours)
         StatItem("All time hours", allTime)
         StatItem("Current streak", streak)
 
