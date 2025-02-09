@@ -3,9 +3,12 @@ package dev.tswanson.fetchquest.android
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
-import retrofit2.http.POST
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import retrofit2.http.POST
 
 class APIConnection(private val token: String) {
     companion object {
@@ -19,9 +22,14 @@ class APIConnection(private val token: String) {
             val request = chain.request().newBuilder().addHeader("Authorization", "Bearer $token").build()
             chain.proceed(request)
         }
+        .build()
 
     private val retrofit = Retrofit.Builder()
         .addConverterFactory(ScalarsConverterFactory.create())
+        .addConverterFactory(Json.asConverterFactory(
+            MediaType.get("application/json; charset=UTF8")
+        ))
+        .client(httpClient)
         .baseUrl(BASE_URL)
         .build()
 
@@ -31,11 +39,11 @@ class APIConnection(private val token: String) {
 
     interface APIService {
         @GET("/me")
-        fun getUserInfo()
+        suspend fun getUserInfo(): String
         @GET("/events")
-        fun getEvents()
+        suspend fun getEvents(): List<Event>
         @POST("/events")
-        fun postEvents(event: Event)
+        suspend fun postEvents(event: Event): Unit
     }
 }
 

@@ -37,7 +37,6 @@ fun signIn(context: Context, coroutineScope: CoroutineScope) {
         .setFilterByAuthorizedAccounts(false)
         .setServerClientId(context.getString(R.string.gcp_id))
         .setAutoSelectEnabled(true) // automatically sign in the user after the first time
-        //.setNonce() todo
         .build()
 
     val getCredRequest = GetCredentialRequest(
@@ -58,7 +57,7 @@ fun signIn(context: Context, coroutineScope: CoroutineScope) {
     }
 }
 
-fun handleSignIn(result: GetCredentialResponse) {
+suspend fun handleSignIn(result: GetCredentialResponse) {
     var credential = result.credential
     when (credential) {
         is CustomCredential -> {
