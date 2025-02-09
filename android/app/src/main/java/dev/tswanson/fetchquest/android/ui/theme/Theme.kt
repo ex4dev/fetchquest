@@ -16,7 +16,8 @@ fun FetchQuestTheme(
         primary = primaryColor,
         secondary = secondaryColor,
         background = backgroundColor,
-        onPrimary = onPrimary
+        onPrimary = onPrimary,
+        surfaceVariant = surfaceVariant
     )
     MaterialTheme(
         colorScheme = colors,
