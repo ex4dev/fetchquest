@@ -10,27 +10,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+val q1: Quest = Quest("Help at the Food Bank", "Assist in sorting and distributing food.", "50",2,1,"");
+val q2: Quest = Quest("Tutor a Student", "Provide online tutoring for a student in need.", "100",4,5,"");
+val q3: Quest = Quest("Elderly Assistance", "Help an elderly person with daily tasks.", "75",7,1,"");
+val q4: Quest = Quest("Help at the Museum", "Assist in sorting and distributing food.", "50",2,1,"");
+val q5: Quest = Quest("Tutor a Elder", "Provide online tutoring for a student in need.", "100",4,5,"");
+val q6: Quest = Quest("Math Assistance", "Help an elderly person with daily tasks.", "75",7,1,"");
+private val itemList : MutableList<Quest> =
+    mutableStateListOf<Quest>(q1,q2,q3)
+private val myQuest : MutableList<Quest> = mutableStateListOf(q1,q2,q3,q4,q5,q6)
 
 @Composable
 fun QuestsPage() {
-    val q1: Quest = Quest("Help at the Food Bank", "Assist in sorting and distributing food.", "50",2,1,"");
-    val q2: Quest = Quest("Tutor a Student", "Provide online tutoring for a student in need.", "100",4,5,"");
-    val q3: Quest = Quest("Elderly Assistance", "Help an elderly person with daily tasks.", "75",7,1,"");
-    val q4: Quest = Quest("Help at the Museum", "Assist in sorting and distributing food.", "50",2,1,"");
-    val q5: Quest = Quest("Tutor a Elder", "Provide online tutoring for a student in need.", "100",4,5,"");
-    val q6: Quest = Quest("Math Assistance", "Help an elderly person with daily tasks.", "75",7,1,"");
-
-    val itemList = listOf(q1,q2,q3,q1,q2,q3,q1);
-    val myQuests = listOf(q4,q5,q6,q1,q2,q3,q1,q2,q3,q1);
 
     Column (
         modifier = Modifier
@@ -48,7 +52,7 @@ fun QuestsPage() {
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
-        VerticalScrollingList(myQuests, "My Quests")
+        VerticalScrollingList(itemList, "My Quests", false)
         Text(
             text = "All Quests",
             style = MaterialTheme.typography.headlineMedium.copy(
@@ -60,13 +64,13 @@ fun QuestsPage() {
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
-        VerticalScrollingList(itemList, "All Quests")
+        VerticalScrollingList(myQuest, "All Quests", true)
     }
 
 }
 
 @Composable
-fun VerticalScrollingList(items: List<Quest>, title: String) {
+fun VerticalScrollingList(items: List<Quest>, title: String, boo: Boolean) {
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -121,8 +125,53 @@ fun VerticalScrollingList(items: List<Quest>, title: String) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
+                    if (boo) {
+                        Button(
+                            onClick = { onAddQuestClick(item) },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Add Quest",
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+
+                    }
+                    if (!boo) {
+
+                        Button(
+                            onClick = { onRemoveQuestClick(item) },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Remove Quest",
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+
+
+                    }
+
                 }
             }
         }
     }
+}
+
+fun onAddQuestClick(item: Quest) {
+    itemList.add(item)
+    //QuestsPage()
+}
+
+fun onRemoveQuestClick(item: Quest) {
+    itemList.remove(item)
+    //QuestsPage()
 }
