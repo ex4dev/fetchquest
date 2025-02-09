@@ -24,10 +24,15 @@ import dev.tswanson.fetchquest.android.R
 @Composable
 fun StatsPage(pastWeek: Int, pastMonth: Int, pastYear: Int,
               currentHours: Int, allTime: Int, streak: Int) {
-
+    Image(
+        painter = painterResource(id = R.drawable.wood),
+        contentDescription = "Wood",
+        modifier = Modifier
+            .scale(6f)
+    )
     Image(
         painter = painterResource(id = R.drawable.scroll),
-        contentDescription = "My Image",
+        contentDescription = "Scroll",
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
@@ -52,6 +57,7 @@ fun StatsPage(pastWeek: Int, pastMonth: Int, pastYear: Int,
         StatItem("Current streak", streak)
 
     }
+
 }
 
 @Composable
