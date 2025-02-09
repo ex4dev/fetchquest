@@ -167,7 +167,14 @@ func main() {
 			return err
 		}
 
-		result := db.Model(&Registration{}).Where("user_id = ? AND event_id = ? AND (SELECT creatorId FROM events WHERE id = ?) = ?", attendeeID, eventID, eventID, user.ID).Update("completed", signedOff)
+		var completionTime sql.NullTime
+
+		if signedOff {
+			completionTime.Valid = true
+			completionTime.Time = time.Now()
+		}
+
+		result := db.Model(&Registration{}).Where("user_id = ? AND event_id = ? AND (SELECT creatorId FROM events WHERE id = ?) = ?", attendeeID, eventID, eventID, user.ID).Update("completedAt", completionTime)
 
 		if result.RowsAffected > 0 {
 			return c.JSON(200, map[string]any{"success": true})
