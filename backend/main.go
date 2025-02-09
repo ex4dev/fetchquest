@@ -27,10 +27,10 @@ type User struct {
 }
 
 type Registration struct {
-	UserId      uint         `gorm:"uniqueIndex:user_event" ,json:"userId"`
-	User        *User        `gorm:"foreignKey:UserId" ,json:"user"`
-	EventId     uint         `gorm:"uniqueIndex:user_event" ,json:"eventId"`
-	Event       *Event       `gorm:"foreignKey:EventId" ,json:"event"`
+	UserId      uint         `gorm:"uniqueIndex:user_event" json:"userId"`
+	User        *User        `gorm:"foreignKey:UserId" json:"user"`
+	EventId     uint         `gorm:"uniqueIndex:user_event" json:"eventId"`
+	Event       *Event       `gorm:"foreignKey:EventId" json:"event"`
 	CompletedAt sql.NullTime `json:"completedAt"`
 }
 
@@ -43,7 +43,7 @@ type Event struct {
 	Date        time.Time `json:"date"`
 	Hours       int       `json:"hours"`
 	CreatedBy   uint      `json:"creatorId"`
-	Creator     *User     `gorm:"foreignKey:CreatedBy" ,json:"createdBy"`
+	Creator     *User     `gorm:"foreignKey:CreatedBy" json:"createdBy"`
 }
 
 func main() {
@@ -53,7 +53,7 @@ func main() {
 	}
 
 	// Migrate the schema
-	err = db.AutoMigrate(&User{}, &Event{})
+	err = db.AutoMigrate(&User{}, &Event{}, &Registration{})
 	if err != nil {
 		panic("error running migrations: " + err.Error())
 	}
@@ -66,6 +66,19 @@ func main() {
 	e.GET("/events", func(c echo.Context) error {
 		events := make([]Event, 0)
 		result := db.Find(&events)
+		if result.Error != nil {
+			return c.String(http.StatusInternalServerError, "Error")
+		}
+		return c.JSON(http.StatusOK, events)
+	})
+
+	e.GET("/my-events", func(c echo.Context) error {
+		user, err := getUser(db, c)
+		if err != nil {
+			return err
+		}
+		events := make([]Event, 0)
+		result := db.Find(&events, "id IN (SELECT * FROM registrations WHERE deleted_at IS NULL AND user_id = ?)", user.ID)
 		if result.Error != nil {
 			return c.String(http.StatusInternalServerError, "Error")
 		}
