@@ -182,7 +182,7 @@ func main() {
 			completionTime.Time = time.Now()
 		}
 
-		result := db.Model(&Registration{}).Where("user_id = ? AND event_id = ? AND (SELECT creatorId FROM events WHERE id = ?) = ?", attendeeID, eventID, eventID, user.ID).Update("completedAt", completionTime)
+		result := db.Model(&Registration{}).Where("user_id = ? AND event_id = ? AND (SELECT creatorId FROM events WHERE id = ?) = ?", attendeeID, eventID, eventID, user.ID).Update("completed_at", completionTime)
 
 		if result.RowsAffected > 0 {
 			return c.JSON(200, map[string]any{"success": true})
@@ -235,27 +235,27 @@ func main() {
 		}
 
 		var allTime, pastYear, pastMonth, pastWeek int
-		result := db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completedAt IS NOT NULL").Select("sum(hours)").Scan(&allTime)
+		result := db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completed_at IS NOT NULL").Select("sum(hours)").Scan(&allTime)
 		if result.Error != nil {
 			return result.Error
 		}
 
-		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completedAt IS NOT NULL AND completedAt > date('now', '-1 year'))").Select("sum(hours)").Scan(&pastYear)
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completed_at IS NOT NULL AND completed_at > date('now', '-1 year'))").Select("sum(hours)").Scan(&pastYear)
 		if result.Error != nil {
 			return result.Error
 		}
 
-		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completedAt IS NOT NULL AND completedAt > date('now', '-30 days'))").Select("sum(hours)").Scan(&pastMonth)
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completed_at IS NOT NULL AND completed_at > date('now', '-30 days'))").Select("sum(hours)").Scan(&pastMonth)
 		if result.Error != nil {
 			return result.Error
 		}
 
-		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completedAt IS NOT NULL AND completedAt > date('now', '-7 days'))").Select("sum(hours)").Scan(&pastWeek)
+		result = db.Table("events").Where("id IN (SELECT id FROM registrations WHERE userId = ? AND completed_at IS NOT NULL AND completed_at > date('now', '-7 days'))").Select("sum(hours)").Scan(&pastWeek)
 		if result.Error != nil {
 			return result.Error
 		}
 
-		rows, err := db.Raw("SELECT completedAt FROM registrations WHERE userId = ? AND completedAt IS NOT NULL ORDER BY completedAt DESC", user.ID).Rows()
+		rows, err := db.Raw("SELECT completed_at FROM registrations WHERE userId = ? AND completed_at IS NOT NULL ORDER BY completed_at DESC", user.ID).Rows()
 		if err != nil {
 			return err
 		}
@@ -289,6 +289,9 @@ func main() {
 
 	authMiddleware := func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			if c.Path() == "/events" {
+				return next(c)
+			}
 			authn := c.Request().Header.Get("Authorization")
 			if authn == "" {
 				return echo.ErrUnauthorized
