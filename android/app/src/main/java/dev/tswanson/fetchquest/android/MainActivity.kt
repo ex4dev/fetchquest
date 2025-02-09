@@ -1,5 +1,6 @@
 package dev.tswanson.fetchquest.android
 
+import SignInPage
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -86,7 +87,7 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "explore",
+        startDestination = "sign-in",
         modifier = modifier,
     ) {
         composable(route = "explore") {
@@ -97,6 +98,9 @@ fun AppNavGraph(
         }
         composable(route = "stats") {
             StatsPage(1, 2, 3, 4, 5, 2)
+        }
+        composable(route = "sign-in") {
+            SignInPage()
         }
     }
 }
