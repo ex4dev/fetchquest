@@ -25,12 +25,6 @@ import dev.tswanson.fetchquest.android.R
 fun StatsPage(pastWeek: Int, pastMonth: Int, pastYear: Int,
               currentHours: Int, allTime: Int, streak: Int) {
     Image(
-        painter = painterResource(id = R.drawable.wood),
-        contentDescription = "Wood",
-        modifier = Modifier
-            .scale(6f)
-    )
-    Image(
         painter = painterResource(id = R.drawable.scroll),
         contentDescription = "Scroll",
         modifier = Modifier
@@ -40,7 +34,6 @@ fun StatsPage(pastWeek: Int, pastMonth: Int, pastYear: Int,
 
     )
     Column (
-
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),

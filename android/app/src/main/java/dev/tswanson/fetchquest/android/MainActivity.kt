@@ -48,13 +48,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             FetchQuestTheme {
-
                 Scaffold(
                     topBar = {
-                        Row {
-                            AppSearchBar(
-                                modifier = Modifier.fillMaxWidth().padding(12.dp)
+                        Box(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.wood),
+                                contentDescription = "Wood",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .scale(6f)
+                                    .height(40.dp)
                             )
+                            Row {
+                                AppSearchBar(
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp)
+                                )
+                            }
                         }
                     },
                     bottomBar = {

@@ -1,15 +1,11 @@
 package dev.tswanson.fetchquest.android.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,13 +15,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,24 +28,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.tswanson.fetchquest.android.R
 
-val q1: Quest = Quest("Help at the Food Bank", "Assist in sorting and distributing food.", "50",2,1,"");
-val q2: Quest = Quest("Tutor a Student", "Provide online tutoring for a student in need.", "100",4,5,"");
-val q3: Quest = Quest("Elderly Assistance", "Help an elderly person with daily tasks.", "75",7,1,"");
-val q4: Quest = Quest("Help at the Museum", "Assist in sorting and distributing food.", "50",2,1,"");
-val q5: Quest = Quest("Tutor a Elder", "Provide online tutoring for a student in need.", "100",4,5,"");
-val q6: Quest = Quest("Math Assistance", "Help an elderly person with daily tasks.", "75",7,1,"");
+val q1: Quest = Quest("Help at the Food Bank", "Assist in sorting and distributing food.", "50",2,1,"")
+val q2: Quest = Quest("Tutor a Student", "Provide online tutoring for a student in need.", "100",4,5,"")
+val q3: Quest = Quest("Elderly Assistance", "Help an elderly person with daily tasks.", "75",7,1,"")
+val q4: Quest = Quest("Help at the Museum", "Assist in sorting and distributing food.", "50",2,1,"")
+val q5: Quest = Quest("Tutor a Elder", "Provide online tutoring for a student in need.", "100",4,5,"")
+val q6: Quest = Quest("Math Assistance", "Help an elderly person with daily tasks.", "75",7,1,"")
 private val itemList : MutableList<Quest> =
     mutableStateListOf<Quest>(q1,q2,q3)
 private val myQuest : MutableList<Quest> = mutableStateListOf(q1,q2,q3,q4,q5,q6)
 
 @Composable
 fun QuestsPage() {
-    Image(
-        painter = painterResource(id = R.drawable.wood),
-        contentDescription = "Wood",
-        modifier = Modifier
-            .scale(6f)
-    )
     Image(
         painter = painterResource(id = R.drawable.scroll),
         contentDescription = "My Image",
