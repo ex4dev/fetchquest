@@ -81,6 +81,21 @@ func main() {
 		return c.JSON(http.StatusOK, events)
 	})
 
+	e.GET("/events/:event/attendees", func(c echo.Context) error {
+		eventID, err := strconv.ParseInt(c.Param("event"), 10, 64)
+		if err != nil {
+			return echo.ErrBadRequest
+		}
+
+		registrations := []Registration{}
+		result := db.Preload("User").Find(&registrations, "eventId = ?", eventID)
+		if result.Error != nil {
+			return c.String(http.StatusInternalServerError, "Error")
+		}
+
+		return c.JSON(http.StatusOK, registrations)
+	})
+
 	e.GET("/my-events", func(c echo.Context) error {
 		user, err := getUser(db, c)
 		if err != nil {
